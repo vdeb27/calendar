@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { buildCustomYear } from '../utils/customCalendar';
 import { buildTraditionalYear } from '../utils/traditionalCalendar';
 import { getTraditionalWeekNumber } from '../utils/dateUtils';
 import { WeekRowData, ViewMode } from '../types/calendar';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useSwipe } from '../hooks/useSwipe';
 import WeekRow from './WeekRow';
 
 interface CalendarProps {
@@ -36,6 +37,7 @@ function buildCustomViewWeeks(customYear: ReturnType<typeof buildCustomYear>): W
           isLastWeekOfPeriod: weekIndexInPeriod === 3,
           isLastWeekOfSeason: false,
           seasonTint: season.tint,
+          seasonName: periodIndex === 0 && weekIndexInPeriod === 0 ? season.name : null,
         });
       });
     });
@@ -57,6 +59,7 @@ function buildCustomViewWeeks(customYear: ReturnType<typeof buildCustomYear>): W
         isLastWeekOfPeriod: false,
         isLastWeekOfSeason: intercalaryIdx === season.intercalaryWeeks.length - 1,
         seasonTint: season.tint,
+        seasonName: null,
       });
     });
   });
@@ -70,6 +73,7 @@ function buildTraditionalViewWeeks(
   const weeks: WeekRowData[] = [];
   let lastMonth = -1;
   let lastPeriodName: string | null = null;
+  let lastSeasonName: string | null = null;
 
   traditionalYear.weeks.forEach((week, weekIndex) => {
     const firstDay = week.days[0];
@@ -87,6 +91,11 @@ function buildTraditionalViewWeeks(
     const showPeriodName = currentPeriodName !== lastPeriodName ? currentPeriodName : null;
     lastPeriodName = currentPeriodName;
 
+    // Only show season name when it changes
+    const currentSeasonName = customInfo?.seasonName || null;
+    const showSeasonName = currentSeasonName !== lastSeasonName ? currentSeasonName : null;
+    lastSeasonName = currentSeasonName;
+
     weeks.push({
       week,
       monthIndex,
@@ -98,6 +107,7 @@ function buildTraditionalViewWeeks(
       isLastWeekOfPeriod: false,
       isLastWeekOfSeason: false,
       seasonTint: customInfo?.seasonTint || '#ffffff',
+      seasonName: showSeasonName,
     });
   });
 
@@ -118,8 +128,17 @@ function translatePeriodName(
 
 export default function Calendar({ year, viewMode, onYearChange, onViewModeChange }: CalendarProps) {
   const { language, setLanguage, t } = useLanguage();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const customYear = useMemo(() => buildCustomYear(year), [year]);
   const traditionalYear = useMemo(() => buildTraditionalYear(year), [year]);
+
+  const swipeHandlers = useMemo(() => ({
+    onSwipeLeft: () => onYearChange(year + 1),
+    onSwipeRight: () => onYearChange(year - 1),
+  }), [year, onYearChange]);
+
+  const { yearIndicator, indicatorKey, isSwiping, offsetX } = useSwipe(containerRef, contentRef, swipeHandlers);
 
   const allWeeks = useMemo(() => {
     if (viewMode === 'traditional') {
@@ -137,7 +156,7 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
   }, [viewMode, year]);
 
   return (
-    <div className="calendar-container">
+    <div className="calendar-container" ref={containerRef}>
       <div className="calendar-header">
         <div className="header-toggles">
           <div className="view-toggle">
@@ -156,18 +175,18 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
             </button>
           </div>
           <div className="lang-toggle">
-            <div className={`lang-toggle-slider ${language === 'nl' ? 'nl' : ''}`} />
-            <button
-              className={`lang-toggle-button ${language === 'en' ? 'active' : ''}`}
-              onClick={() => setLanguage('en')}
-            >
-              EN
-            </button>
+            <div className={`lang-toggle-slider ${language === 'en' ? 'en' : ''}`} />
             <button
               className={`lang-toggle-button ${language === 'nl' ? 'active' : ''}`}
               onClick={() => setLanguage('nl')}
             >
               NL
+            </button>
+            <button
+              className={`lang-toggle-button ${language === 'en' ? 'active' : ''}`}
+              onClick={() => setLanguage('en')}
+            >
+              EN
             </button>
           </div>
         </div>
@@ -190,6 +209,28 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
         </div>
       </div>
 
+      {yearIndicator && (
+        <div className="year-indicator" key={indicatorKey}>
+          <span>{yearDisplay}</span>
+        </div>
+      )}
+
+      <div className="swipe-viewport">
+        {isSwiping && offsetX !== 0 && (
+          <div className={`swipe-peek-label ${offsetX > 0 ? 'left' : 'right'}`}>
+            <div className="swipe-peek-arrow">{offsetX > 0 ? '◀' : '▶'}</div>
+            <div className="swipe-peek-year">{offsetX > 0 ? year - 1 : year + 1}</div>
+            {viewMode === 'olympian' && (
+              <>
+                <div className="swipe-peek-separator">–</div>
+                <div className="swipe-peek-year">{offsetX > 0 ? year : year + 2}</div>
+              </>
+            )}
+          </div>
+        )}
+      <div className="swipe-strip" ref={contentRef}>
+        <div className={`swipe-peek swipe-peek-left${isSwiping && offsetX > 0 ? ' active' : ''}`} />
+        <div className={`swipe-peek swipe-peek-right${isSwiping && offsetX < 0 ? ' active' : ''}`} />
       <div className="calendar-content">
         <div className="calendar-header-row">
           <div className="sidebar-header traditional">{t.month}</div>
@@ -211,34 +252,56 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
             ].filter(Boolean).join(' ');
 
             return (
-              <div
-                key={`${weekData.customWeekNumber}-${index}`}
-                className={rowClasses}
-                style={{ backgroundColor: weekData.seasonTint }}
-              >
-                <div className="traditional-sidebar-cell">
-                  {weekData.monthIndex !== null && (
-                    <div className="month-name">{t.months[weekData.monthIndex]}</div>
-                  )}
-                  <div className="week-number">{weekData.traditionalWeekNumber}</div>
-                </div>
+              <div key={`${weekData.customWeekNumber}-${index}`}>
+                {viewMode === 'olympian' && weekData.seasonName && (
+                  <div className="mobile-season-header" style={{ backgroundColor: weekData.seasonTint }}>
+                    {t.seasons[weekData.seasonName]}
+                  </div>
+                )}
+                {viewMode === 'olympian' && weekData.periodName && (
+                  <div className={`mobile-period-header ${weekData.isIntercalary ? 'intercalary' : ''}`} style={{ backgroundColor: weekData.seasonTint }}>
+                    {translatePeriodName(weekData.periodName, weekData.isIntercalary, t)}
+                  </div>
+                )}
+                {viewMode === 'traditional' && weekData.monthIndex !== null && (
+                  <div className="mobile-month-header">
+                    {t.months[weekData.monthIndex]}
+                  </div>
+                )}
+                <div
+                  className={rowClasses}
+                  style={{ backgroundColor: weekData.seasonTint }}
+                >
+                  <div className="traditional-sidebar-cell">
+                    {weekData.monthIndex !== null && (
+                      <div className="month-name">{t.months[weekData.monthIndex]}</div>
+                    )}
+                    <div className="week-number">{weekData.traditionalWeekNumber}</div>
+                  </div>
 
-                <div className={`week-row-wrapper period-shade-${periodShade}`}>
-                  <WeekRow week={weekData.week} viewMode={viewMode} />
-                </div>
+                  <div className="mobile-week-number">
+                    {viewMode === 'olympian' ? weekData.customWeekNumber : weekData.traditionalWeekNumber}
+                  </div>
 
-                <div className="custom-sidebar-cell">
-                  {weekData.periodName && (
-                    <div className={`period-name ${weekData.isIntercalary ? 'intercalary-label' : ''}`}>
-                      {translatePeriodName(weekData.periodName, weekData.isIntercalary, t)}
-                    </div>
-                  )}
-                  <div className="custom-week">{weekData.customWeekNumber}</div>
+                  <div className={`week-row-wrapper period-shade-${periodShade}`}>
+                    <WeekRow week={weekData.week} viewMode={viewMode} />
+                  </div>
+
+                  <div className="custom-sidebar-cell">
+                    {weekData.periodName && (
+                      <div className={`period-name ${weekData.isIntercalary ? 'intercalary-label' : ''}`}>
+                        {translatePeriodName(weekData.periodName, weekData.isIntercalary, t)}
+                      </div>
+                    )}
+                    <div className="custom-week">{weekData.customWeekNumber}</div>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
+      </div>
+      </div>
       </div>
     </div>
   );

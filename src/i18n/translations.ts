@@ -28,6 +28,12 @@ export const translations = {
       Autumnjoy: 'Autumnjoy',
       Winterjoy: 'Winterjoy',
     },
+    seasons: {
+      Spring: 'Spring',
+      Summer: 'Summer',
+      Autumn: 'Autumn',
+      Winter: 'Winter',
+    },
   },
   nl: {
     traditional: 'Traditioneel',
@@ -56,6 +62,12 @@ export const translations = {
       Autumnjoy: 'Herfstvreugde',
       Winterjoy: 'Wintervreugde',
     },
+    seasons: {
+      Spring: 'Lente',
+      Summer: 'Zomer',
+      Autumn: 'Herfst',
+      Winter: 'Winter',
+    },
   },
 };
 
@@ -68,4 +80,5 @@ export interface Translations {
   months: readonly string[];
   periods: Record<string, string>;
   intercalary: Record<string, string>;
+  seasons: Record<string, string>;
 }

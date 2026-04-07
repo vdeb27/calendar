@@ -53,4 +53,5 @@ export interface WeekRowData {
   isLastWeekOfPeriod: boolean;
   isLastWeekOfSeason: boolean;
   seasonTint: string;
+  seasonName: string | null;
 }

@@ -60,6 +60,7 @@ body {
 }
 
 .view-toggle-button {
+  flex: 1;
   padding: 8px 20px;
   border: none;
   background: transparent;
@@ -71,6 +72,7 @@ body {
   transition: color 0.25s ease;
   position: relative;
   z-index: 1;
+  text-align: center;
 }
 
 .view-toggle-button:hover {
@@ -109,7 +111,7 @@ body {
   pointer-events: none;
 }
 
-.lang-toggle-slider.nl {
+.lang-toggle-slider.en {
   transform: translateX(100%);
 }
 
@@ -374,6 +376,126 @@ body {
   }
 }
 
+/* Swipe viewport and peek panels */
+.swipe-viewport {
+  position: relative;
+}
+
+.swipe-strip {
+  display: contents;
+}
+
+.swipe-peek,
+.swipe-peek-label {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .swipe-viewport {
+    overflow: hidden;
+  }
+
+  .swipe-strip {
+    display: block;
+    position: relative;
+    background: white;
+  }
+
+  .swipe-peek {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: #ecf0f1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .swipe-peek.active {
+    opacity: 1;
+  }
+
+  .swipe-peek-left {
+    right: 100%;
+  }
+
+  .swipe-peek-right {
+    left: 100%;
+  }
+
+  .swipe-peek-label {
+    position: fixed;
+    top: 35vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .swipe-peek-label.left {
+    left: 8px;
+  }
+
+  .swipe-peek-label.right {
+    right: 8px;
+  }
+
+  .swipe-peek-arrow {
+    font-size: 1.5rem;
+    color: #95a5a6;
+    margin-bottom: 4px;
+  }
+
+  .swipe-peek-year {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #95a5a6;
+    line-height: 1.2;
+  }
+
+  .swipe-peek-separator {
+    font-size: 1rem;
+    color: #bdc3c7;
+    line-height: 1.2;
+  }
+}
+
+/* Year indicator for swipe feedback */
+.year-indicator {
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(44, 62, 80, 0.85);
+  color: white;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  z-index: 100;
+  pointer-events: none;
+  animation: yearFadeInOut 0.8s ease-out forwards;
+}
+
+@keyframes yearFadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+}
+
+/* Mobile-only elements: hidden on desktop */
+.mobile-season-header,
+.mobile-period-header,
+.mobile-month-header,
+.mobile-week-number {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .calendar-header-row,
   .calendar-row {
@@ -392,5 +514,145 @@ body {
 
   .day-number {
     font-size: 0.85rem;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  body {
+    padding: 0;
+  }
+
+  .calendar-container {
+    box-shadow: none;
+  }
+
+  /* Header compact */
+  .calendar-header {
+    padding: 12px 8px;
+    gap: 10px;
+  }
+
+  .calendar-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-toggles {
+    gap: 8px;
+  }
+
+  .view-toggle-button {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .year-navigation {
+    gap: 15px;
+  }
+
+  .year-nav-button {
+    padding: 6px 14px;
+    font-size: 1.2rem;
+    min-width: 40px;
+  }
+
+  /* Hide desktop sidebars */
+  .traditional-sidebar-cell,
+  .custom-sidebar-cell,
+  .sidebar-header {
+    display: none;
+  }
+
+  /* Grid: week number + day grid */
+  .calendar-header-row {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-row {
+    grid-template-columns: 28px 1fr;
+  }
+
+  /* Show mobile elements */
+  .mobile-season-header {
+    display: block;
+    padding: 10px 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #2c3e50;
+    border-top: 3px solid #95a5a6;
+    border-bottom: 1px solid #bdc3c7;
+  }
+
+  .mobile-period-header {
+    display: block;
+    padding: 5px 12px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #34495e;
+    border-bottom: 1px solid #ecf0f1;
+  }
+
+  .mobile-period-header.intercalary {
+    font-style: italic;
+    color: #7f8c8d;
+  }
+
+  .mobile-month-header {
+    display: block;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #2c3e50;
+    background: #ecf0f1;
+    border-bottom: 1px solid #bdc3c7;
+  }
+
+  .mobile-week-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #95a5a6;
+    font-weight: 500;
+    border-right: 1px solid #ecf0f1;
+  }
+
+  /* Day headers */
+  .day-header {
+    padding: 6px 2px;
+    font-size: 0.7rem;
+  }
+
+  /* Compact day cells */
+  .day-cell {
+    padding: 4px 2px;
+    min-height: 32px;
+  }
+
+  .day-number {
+    font-size: 0.8rem;
+  }
+
+  .day-number-alt {
+    font-size: 0.55rem;
+    bottom: 2px;
+    right: 2px;
+  }
+
+  .astronomical-icon {
+    font-size: 0.65rem;
+    top: 2px;
+    right: 2px;
+  }
+
+  .day-cell.today {
+    border-width: 2px;
+  }
+
+  /* Sticky header adjustments */
+  .calendar-header-row .day-headers {
+    grid-column: 1 / -1;
   }
 }

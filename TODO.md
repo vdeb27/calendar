@@ -6,8 +6,8 @@ Slider/pill toggle in plaats van de huidige knoppen om te kiezen tussen Traditio
 ## ~~2. Taalkeuze Nederlands/Engels~~ DONE
 NL/EN toggle via React context. Alle UI-teksten, dag/maandnamen, periodenamen (Athene, Hephaistos) en intercalary-namen (Lentevreugde etc.) vertaald.
 
-## 3. Mobiele weergave
-Kalender geschikt maken voor telefoonschermen. Alles compacter: sidebars, dagcellen, spacing. Testen via browser device emulation. Idealiter past een seizoen op een scherm, anders een maand/periode.
+## ~~3. Mobiele weergave~~ DONE
+PWA met installeerbare app (vite-plugin-pwa), compacte single-column layout (≤600px), inline seizoen/periode/maand-headers, weeknummers, horizontale swipe-navigatie met peek-panels en jaar-indicator. Default taal Nederlands.
 
 ## ~~4. Intercalary weken optimaliseren~~ DONE
 DP-optimalisatie uitputtend gemaximaliseerd: timezone-fix (UTC-consistent), drift als tiebreaker, onafhankelijke verificatie. Resultaat: 1284/1600 events (80.25%) in Vreugde-weken, bewezen optimaal.
@@ -29,6 +29,12 @@ Hardcoded tabel en ongebruikte analyse-functies verwijderd. Alleen de algoritmis
 
 ## 10. Print-stylesheet
 CSS toevoegen zodat de kalender goed printbaar is, passend bij de inspiratie van de fysieke wandkalender.
+
+## 12. Maanfasen integreren
+Maanfasen (nieuwe maan, eerste kwartier, volle maan, laatste kwartier) weergeven in de kalender. Kan visueel als kleine iconen in de dagcellen. Past goed bij het astronomische karakter van de Olympian kalender.
+
+## 13. Schoolvakanties weergeven
+Schoolvakanties (regio-afhankelijk) visueel markeren in de kalender. Denk aan gekleurde achtergronden of labels op de betreffende weken/dagen.
 
 ## ~~11. Referentie-screenshots opruimen~~ DONE
 Screenshots verplaatst naar `docs/design-references/`.
