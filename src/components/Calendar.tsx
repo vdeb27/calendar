@@ -126,6 +126,7 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
     <div className="calendar-container">
       <div className="calendar-header">
         <div className="view-toggle">
+          <div className={`view-toggle-slider ${viewMode === 'olympian' ? 'olympian' : ''}`} />
           <button
             className={`view-toggle-button ${viewMode === 'traditional' ? 'active' : ''}`}
             onClick={() => onViewModeChange('traditional')}
@@ -133,8 +134,8 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
             Traditional
           </button>
           <button
-            className={`view-toggle-button ${viewMode === 'custom' ? 'active' : ''}`}
-            onClick={() => onViewModeChange('custom')}
+            className={`view-toggle-button ${viewMode === 'olympian' ? 'active' : ''}`}
+            onClick={() => onViewModeChange('olympian')}
           >
             Olympian
           </button>
