@@ -82,6 +82,60 @@ body {
   background: transparent;
 }
 
+.header-toggles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-toggle {
+  display: flex;
+  position: relative;
+  background: #ecf0f1;
+  border-radius: 16px;
+  padding: 2px;
+}
+
+.lang-toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(50% - 2px);
+  height: calc(100% - 4px);
+  background: #2c3e50;
+  border-radius: 14px;
+  transition: transform 0.25s ease;
+  pointer-events: none;
+}
+
+.lang-toggle-slider.nl {
+  transform: translateX(100%);
+}
+
+.lang-toggle-button {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+  transition: color 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.lang-toggle-button:hover {
+  background: transparent;
+}
+
+.lang-toggle-button.active {
+  color: white;
+  background: transparent;
+}
+
 .year-navigation {
   display: flex;
   align-items: center;
