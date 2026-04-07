@@ -1,6 +1,6 @@
 export type SeasonName = 'Spring' | 'Summer' | 'Autumn' | 'Winter';
 
-export type ViewMode = 'traditional' | 'custom';
+export type ViewMode = 'traditional' | 'olympian';
 
 export type AstronomicalEvent =
   | 'spring-equinox'

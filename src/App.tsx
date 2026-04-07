@@ -4,8 +4,8 @@ import { ViewMode } from './types/calendar';
 import './styles/calendar.css';
 
 function App() {
-  const [year, setYear] = useState(2026);
-  const [viewMode, setViewMode] = useState<ViewMode>('custom');
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [viewMode, setViewMode] = useState<ViewMode>('olympian');
 
   return (
     <Calendar
