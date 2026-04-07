@@ -44,7 +44,7 @@ export interface CustomYear {
 
 export interface WeekRowData {
   week: Week;
-  monthName: string | null;
+  monthIndex: number | null;
   traditionalWeekNumber: number;
   periodName: string | null;
   customWeekNumber: number;

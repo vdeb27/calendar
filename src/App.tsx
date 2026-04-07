@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Calendar from './components/Calendar';
 import { ViewMode } from './types/calendar';
+import { LanguageProvider } from './i18n/LanguageContext';
 import './styles/calendar.css';
 
 function App() {
@@ -8,12 +9,14 @@ function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('olympian');
 
   return (
-    <Calendar
-      year={year}
-      viewMode={viewMode}
-      onYearChange={setYear}
-      onViewModeChange={setViewMode}
-    />
+    <LanguageProvider>
+      <Calendar
+        year={year}
+        viewMode={viewMode}
+        onYearChange={setYear}
+        onViewModeChange={setViewMode}
+      />
+    </LanguageProvider>
   );
 }
 

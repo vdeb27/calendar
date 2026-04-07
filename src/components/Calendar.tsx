@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { buildCustomYear } from '../utils/customCalendar';
 import { buildTraditionalYear } from '../utils/traditionalCalendar';
-import { getMonthName, getTraditionalWeekNumber } from '../utils/dateUtils';
+import { getTraditionalWeekNumber } from '../utils/dateUtils';
 import { WeekRowData, ViewMode } from '../types/calendar';
+import { useLanguage } from '../i18n/LanguageContext';
 import WeekRow from './WeekRow';
 
 interface CalendarProps {
@@ -21,12 +22,12 @@ function buildCustomViewWeeks(customYear: ReturnType<typeof buildCustomYear>): W
       period.weeks.forEach((week, weekIndexInPeriod) => {
         const firstDay = week.days[0];
         const currentMonth = firstDay.date.getMonth();
-        const monthName = currentMonth !== lastMonth ? getMonthName(currentMonth) : null;
+        const monthIndex = currentMonth !== lastMonth ? currentMonth : null;
         lastMonth = currentMonth;
 
         weeks.push({
           week,
-          monthName,
+          monthIndex,
           traditionalWeekNumber: getTraditionalWeekNumber(firstDay.date),
           periodName: weekIndexInPeriod === 0 ? period.name : null,
           customWeekNumber: week.customWeekNumber,
@@ -42,12 +43,12 @@ function buildCustomViewWeeks(customYear: ReturnType<typeof buildCustomYear>): W
     season.intercalaryWeeks.forEach((intercalaryWeek, intercalaryIdx) => {
       const intercalaryFirstDay = intercalaryWeek.days[0];
       const intercalaryMonth = intercalaryFirstDay.date.getMonth();
-      const monthName = intercalaryMonth !== lastMonth ? getMonthName(intercalaryMonth) : null;
+      const monthIndex = intercalaryMonth !== lastMonth ? intercalaryMonth : null;
       lastMonth = intercalaryMonth;
 
       weeks.push({
         week: intercalaryWeek,
-        monthName,
+        monthIndex,
         traditionalWeekNumber: getTraditionalWeekNumber(intercalaryFirstDay.date),
         periodName: intercalaryIdx === 0 ? (intercalaryWeek.intercalaryName || '—') : null,
         customWeekNumber: intercalaryWeek.customWeekNumber,
@@ -73,7 +74,7 @@ function buildTraditionalViewWeeks(
   traditionalYear.weeks.forEach((week, weekIndex) => {
     const firstDay = week.days[0];
     const currentMonth = firstDay.date.getMonth();
-    const monthName = currentMonth !== lastMonth ? getMonthName(currentMonth) : null;
+    const monthIndex = currentMonth !== lastMonth ? currentMonth : null;
     lastMonth = currentMonth;
 
     // Get custom calendar info for this date
@@ -88,7 +89,7 @@ function buildTraditionalViewWeeks(
 
     weeks.push({
       week,
-      monthName,
+      monthIndex,
       traditionalWeekNumber: getTraditionalWeekNumber(firstDay.date),
       periodName: showPeriodName,
       customWeekNumber: customInfo?.customWeekNumber || weekIndex + 1,
@@ -103,7 +104,20 @@ function buildTraditionalViewWeeks(
   return weeks;
 }
 
+function translatePeriodName(
+  name: string,
+  isIntercalary: boolean,
+  t: ReturnType<typeof useLanguage>['t']
+): string {
+  if (name === '—') return name;
+  if (isIntercalary) {
+    return (t.intercalary as Record<string, string>)[name] || name;
+  }
+  return (t.periods as Record<string, string>)[name] || name;
+}
+
 export default function Calendar({ year, viewMode, onYearChange, onViewModeChange }: CalendarProps) {
+  const { language, setLanguage, t } = useLanguage();
   const customYear = useMemo(() => buildCustomYear(year), [year]);
   const traditionalYear = useMemo(() => buildTraditionalYear(year), [year]);
 
@@ -125,20 +139,37 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
   return (
     <div className="calendar-container">
       <div className="calendar-header">
-        <div className="view-toggle">
-          <div className={`view-toggle-slider ${viewMode === 'olympian' ? 'olympian' : ''}`} />
-          <button
-            className={`view-toggle-button ${viewMode === 'traditional' ? 'active' : ''}`}
-            onClick={() => onViewModeChange('traditional')}
-          >
-            Traditional
-          </button>
-          <button
-            className={`view-toggle-button ${viewMode === 'olympian' ? 'active' : ''}`}
-            onClick={() => onViewModeChange('olympian')}
-          >
-            Olympian
-          </button>
+        <div className="header-toggles">
+          <div className="view-toggle">
+            <div className={`view-toggle-slider ${viewMode === 'olympian' ? 'olympian' : ''}`} />
+            <button
+              className={`view-toggle-button ${viewMode === 'traditional' ? 'active' : ''}`}
+              onClick={() => onViewModeChange('traditional')}
+            >
+              {t.traditional}
+            </button>
+            <button
+              className={`view-toggle-button ${viewMode === 'olympian' ? 'active' : ''}`}
+              onClick={() => onViewModeChange('olympian')}
+            >
+              {t.olympian}
+            </button>
+          </div>
+          <div className="lang-toggle">
+            <div className={`lang-toggle-slider ${language === 'nl' ? 'nl' : ''}`} />
+            <button
+              className={`lang-toggle-button ${language === 'en' ? 'active' : ''}`}
+              onClick={() => setLanguage('en')}
+            >
+              EN
+            </button>
+            <button
+              className={`lang-toggle-button ${language === 'nl' ? 'active' : ''}`}
+              onClick={() => setLanguage('nl')}
+            >
+              NL
+            </button>
+          </div>
         </div>
         <div className="year-navigation">
           <button
@@ -161,17 +192,13 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
 
       <div className="calendar-content">
         <div className="calendar-header-row">
-          <div className="sidebar-header traditional">Month</div>
+          <div className="sidebar-header traditional">{t.month}</div>
           <div className="day-headers">
-            <div className="day-header">Mon</div>
-            <div className="day-header">Tue</div>
-            <div className="day-header">Wed</div>
-            <div className="day-header">Thu</div>
-            <div className="day-header">Fri</div>
-            <div className="day-header weekend">Sat</div>
-            <div className="day-header weekend">Sun</div>
+            {t.days.map((day, i) => (
+              <div key={i} className={`day-header ${i >= 5 ? 'weekend' : ''}`}>{day}</div>
+            ))}
           </div>
-          <div className="sidebar-header custom">Period</div>
+          <div className="sidebar-header custom">{t.period}</div>
         </div>
 
         <div className="weeks-container">
@@ -190,8 +217,8 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
                 style={{ backgroundColor: weekData.seasonTint }}
               >
                 <div className="traditional-sidebar-cell">
-                  {weekData.monthName && (
-                    <div className="month-name">{weekData.monthName}</div>
+                  {weekData.monthIndex !== null && (
+                    <div className="month-name">{t.months[weekData.monthIndex]}</div>
                   )}
                   <div className="week-number">{weekData.traditionalWeekNumber}</div>
                 </div>
@@ -203,7 +230,7 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
                 <div className="custom-sidebar-cell">
                   {weekData.periodName && (
                     <div className={`period-name ${weekData.isIntercalary ? 'intercalary-label' : ''}`}>
-                      {weekData.periodName}
+                      {translatePeriodName(weekData.periodName, weekData.isIntercalary, t)}
                     </div>
                   )}
                   <div className="custom-week">{weekData.customWeekNumber}</div>
