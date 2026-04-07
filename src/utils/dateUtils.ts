@@ -15,7 +15,8 @@ export type LeapSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 // - Pattern contains exactly 71 leap weeks per 400-year cycle
 // - Epoch: March 30, 2020 (Monday)
 const EPOCH_YEAR = 2020;
-const EPOCH_START = new Date(2020, 2, 30); // March 30, 2020 (Monday)
+// UTC epoch — must match calendarAnalysis.ts for consistency
+const EPOCH_START_UTC = new Date(Date.UTC(2020, 2, 30)); // March 30, 2020 (Monday) UTC
 
 // Perpetual 400-year leap week pattern
 // Computed using astronomical event drift optimization
@@ -47,26 +48,27 @@ function getLeapInfoForYear(year: number): LeapWeekEntry | null {
 }
 
 export function getCustomYearStart(year: number): Date {
-  // Calculate the start date by counting weeks from the epoch
-  let currentStart = new Date(EPOCH_START);
+  // Calculate the start date by counting weeks from the UTC epoch,
+  // then convert to local date for UI display.
+  let utcMs = EPOCH_START_UTC.getTime();
 
   if (year >= EPOCH_YEAR) {
-    // Forward from epoch
     for (let y = EPOCH_YEAR; y < year; y++) {
       const leapInfo = getLeapInfoForYear(y);
       const weeks = leapInfo ? 53 : 52;
-      currentStart = addDays(currentStart, weeks * 7);
+      utcMs += weeks * 7 * 24 * 60 * 60 * 1000;
     }
   } else {
-    // Backward from epoch
     for (let y = EPOCH_YEAR - 1; y >= year; y--) {
       const leapInfo = getLeapInfoForYear(y);
       const weeks = leapInfo ? 53 : 52;
-      currentStart = addDays(currentStart, -weeks * 7);
+      utcMs -= weeks * 7 * 24 * 60 * 60 * 1000;
     }
   }
 
-  return currentStart;
+  // Convert UTC midnight to a local Date representing the same calendar date
+  const utcDate = new Date(utcMs);
+  return new Date(utcDate.getUTCFullYear(), utcDate.getUTCMonth(), utcDate.getUTCDate());
 }
 
 export function addDays(date: Date, days: number): Date {
