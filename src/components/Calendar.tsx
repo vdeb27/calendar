@@ -6,6 +6,7 @@ import { WeekRowData, ViewMode } from '../types/calendar';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSwipe } from '../hooks/useSwipe';
 import WeekRow from './WeekRow';
+import SettingsDropdown from './SettingsDropdown';
 import { useSchoolHoliday } from '../context/SchoolHolidayContext';
 
 interface CalendarProps {
@@ -128,8 +129,8 @@ function translatePeriodName(
 }
 
 export default function Calendar({ year, viewMode, onYearChange, onViewModeChange }: CalendarProps) {
-  const { language, setLanguage, t } = useLanguage();
-  const { region, setRegion } = useSchoolHoliday();
+  const { t } = useLanguage();
+  const { region } = useSchoolHoliday();
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const customYear = useMemo(() => buildCustomYear(year, region), [year, region]);
@@ -176,33 +177,7 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
               {t.olympian}
             </button>
           </div>
-          <div className="lang-toggle">
-            <div className={`lang-toggle-slider ${language === 'en' ? 'en' : ''}`} />
-            <button
-              className={`lang-toggle-button ${language === 'nl' ? 'active' : ''}`}
-              onClick={() => setLanguage('nl')}
-            >
-              NL
-            </button>
-            <button
-              className={`lang-toggle-button ${language === 'en' ? 'active' : ''}`}
-              onClick={() => setLanguage('en')}
-            >
-              EN
-            </button>
-          </div>
-          <div className="region-toggle">
-            <div className={`region-toggle-slider ${region}`} />
-            {(['noord', 'midden', 'zuid'] as const).map(r => (
-              <button
-                key={r}
-                className={`region-toggle-button ${region === r ? 'active' : ''}`}
-                onClick={() => setRegion(r)}
-              >
-                {r === 'noord' ? 'N' : r === 'midden' ? 'M' : 'Z'}
-              </button>
-            ))}
-          </div>
+          <SettingsDropdown />
         </div>
         <div className="year-navigation">
           <button

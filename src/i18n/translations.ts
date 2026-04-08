@@ -41,6 +41,12 @@ export const translations = {
       meivakantie: 'May Break',
       zomervakantie: 'Summer Break',
     },
+    settings: 'Settings',
+    astronomicalEvents: 'Astronomical events',
+    moonPhases: 'Moon phases',
+    schoolHolidaysLabel: 'School holidays',
+    region: 'Region',
+    languageLabel: 'Language',
   },
   nl: {
     traditional: 'Traditioneel',
@@ -82,6 +88,12 @@ export const translations = {
       meivakantie: 'Meivakantie',
       zomervakantie: 'Zomervakantie',
     },
+    settings: 'Instellingen',
+    astronomicalEvents: 'Astronomische events',
+    moonPhases: 'Maanfasen',
+    schoolHolidaysLabel: 'Schoolvakanties',
+    region: 'Regio',
+    languageLabel: 'Taal',
   },
 };
 
@@ -96,4 +108,10 @@ export interface Translations {
   intercalary: Record<string, string>;
   seasons: Record<string, string>;
   schoolHolidays: Record<string, string>;
+  settings: string;
+  astronomicalEvents: string;
+  moonPhases: string;
+  schoolHolidaysLabel: string;
+  region: string;
+  languageLabel: string;
 }
