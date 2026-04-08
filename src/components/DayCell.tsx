@@ -1,5 +1,7 @@
 import { Day, ViewMode, MoonPhase } from '../types/calendar';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useDisplaySettings } from '../context/DisplaySettingsContext';
+import { useSchoolHoliday } from '../context/SchoolHolidayContext';
 
 interface DayCellProps {
   day: Day;
@@ -41,22 +43,26 @@ function getMoonPhaseIcon(phase: MoonPhase | undefined): string | null {
 }
 
 export default function DayCell({ day, viewMode }: DayCellProps) {
-  const astroIcon = getAstronomicalIcon(day.astronomicalEvent);
-  const moonIcon = getMoonPhaseIcon(day.moonPhase);
+  const { showAstronomical, showMoonPhases } = useDisplaySettings();
+  const { showHolidays } = useSchoolHoliday();
+  const astroIcon = showAstronomical ? getAstronomicalIcon(day.astronomicalEvent) : null;
+  const moonIcon = showMoonPhases ? getMoonPhaseIcon(day.moonPhase) : null;
   const { t } = useLanguage();
 
   // Determine which number to show prominently
   const prominentNumber = viewMode === 'traditional' ? day.traditionalDayNumber : day.olympianDayNumber;
   const alternateNumber = viewMode === 'traditional' ? day.olympianDayNumber : day.traditionalDayNumber;
 
+  const hasHoliday = showHolidays && day.schoolHoliday;
+
   const cellClasses = [
     'day-cell',
     day.isWeekend ? 'weekend' : '',
     day.isToday ? 'today' : '',
-    day.schoolHoliday ? 'school-holiday' : '',
+    hasHoliday ? 'school-holiday' : '',
   ].filter(Boolean).join(' ');
 
-  const holidayTitle = day.schoolHoliday ? t.schoolHolidays[day.schoolHoliday] : undefined;
+  const holidayTitle = hasHoliday ? t.schoolHolidays[day.schoolHoliday!] : undefined;
 
   return (
     <div className={cellClasses} title={holidayTitle}>

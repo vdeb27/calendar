@@ -39,5 +39,5 @@ Maanfasen (nieuwe maan, eerste kwartier, volle maan, laatste kwartier) weergeven
 ## ~~13. Schoolvakanties weergeven~~ DONE
 Schoolvakanties (Noord/Midden/Zuid, default Midden) visueel gemarkeerd met diagonaal streepjespatroon. Data 2020-2030 van rijksoverheid open data. Regio-toggle (N/M/Z) in header. Eerste weekend overgeslagen voor schonere weergave.
 
-## 14. Optie-venster voor een uitleg en de opties
+## ~~14. Optie-venster voor een uitleg en de opties~~ DONE
 Een tandwiel rechtsboven met daarachter alle configuratie opties. Visueel gemaakt: iets als 📅/🏔️ toggle voor de keuze tussen traditionele en Olympische kalenders, ☀️ on/off voor de astronomische gebeurtenissen, 🌙 on/off voor de maanfases, 🏫 on/off voor schoolvakanties, 🇳🇱/🇬🇧 voor de taal, en een three-way toggle voor de keuze Noord/Midden/Zuid ⬆️/↔️/⬇️.
