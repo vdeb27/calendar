@@ -6,6 +6,7 @@ import { WeekRowData, ViewMode } from '../types/calendar';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useSwipe } from '../hooks/useSwipe';
 import WeekRow from './WeekRow';
+import { useSchoolHoliday } from '../context/SchoolHolidayContext';
 
 interface CalendarProps {
   year: number;
@@ -128,10 +129,11 @@ function translatePeriodName(
 
 export default function Calendar({ year, viewMode, onYearChange, onViewModeChange }: CalendarProps) {
   const { language, setLanguage, t } = useLanguage();
+  const { region, setRegion } = useSchoolHoliday();
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const customYear = useMemo(() => buildCustomYear(year), [year]);
-  const traditionalYear = useMemo(() => buildTraditionalYear(year), [year]);
+  const customYear = useMemo(() => buildCustomYear(year, region), [year, region]);
+  const traditionalYear = useMemo(() => buildTraditionalYear(year, region), [year, region]);
 
   const swipeHandlers = useMemo(() => ({
     onSwipeLeft: () => onYearChange(year + 1),
@@ -188,6 +190,18 @@ export default function Calendar({ year, viewMode, onYearChange, onViewModeChang
             >
               EN
             </button>
+          </div>
+          <div className="region-toggle">
+            <div className={`region-toggle-slider ${region}`} />
+            {(['noord', 'midden', 'zuid'] as const).map(r => (
+              <button
+                key={r}
+                className={`region-toggle-button ${region === r ? 'active' : ''}`}
+                onClick={() => setRegion(r)}
+              >
+                {r === 'noord' ? 'N' : r === 'midden' ? 'M' : 'Z'}
+              </button>
+            ))}
           </div>
         </div>
         <div className="year-navigation">

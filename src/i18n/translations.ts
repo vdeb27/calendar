@@ -34,6 +34,13 @@ export const translations = {
       Autumn: 'Autumn',
       Winter: 'Winter',
     },
+    schoolHolidays: {
+      herfstvakantie: 'Autumn Break',
+      kerstvakantie: 'Christmas Break',
+      voorjaarsvakantie: 'Spring Break',
+      meivakantie: 'May Break',
+      zomervakantie: 'Summer Break',
+    },
   },
   nl: {
     traditional: 'Traditioneel',
@@ -68,6 +75,13 @@ export const translations = {
       Autumn: 'Herfst',
       Winter: 'Winter',
     },
+    schoolHolidays: {
+      herfstvakantie: 'Herfstvakantie',
+      kerstvakantie: 'Kerstvakantie',
+      voorjaarsvakantie: 'Voorjaarsvakantie',
+      meivakantie: 'Meivakantie',
+      zomervakantie: 'Zomervakantie',
+    },
   },
 };
 
@@ -81,4 +95,5 @@ export interface Translations {
   periods: Record<string, string>;
   intercalary: Record<string, string>;
   seasons: Record<string, string>;
+  schoolHolidays: Record<string, string>;
 }

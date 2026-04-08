@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Calendar from './components/Calendar';
 import { ViewMode } from './types/calendar';
 import { LanguageProvider } from './i18n/LanguageContext';
+import { SchoolHolidayProvider } from './context/SchoolHolidayContext';
 import './styles/calendar.css';
 
 function App() {
@@ -10,12 +11,14 @@ function App() {
 
   return (
     <LanguageProvider>
-      <Calendar
-        year={year}
-        viewMode={viewMode}
-        onYearChange={setYear}
-        onViewModeChange={setViewMode}
-      />
+      <SchoolHolidayProvider>
+        <Calendar
+          year={year}
+          viewMode={viewMode}
+          onYearChange={setYear}
+          onViewModeChange={setViewMode}
+        />
+      </SchoolHolidayProvider>
     </LanguageProvider>
   );
 }

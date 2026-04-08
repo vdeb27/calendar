@@ -10,6 +10,15 @@ export type AstronomicalEvent =
 
 export type MoonPhase = 'new-moon' | 'first-quarter' | 'full-moon' | 'last-quarter';
 
+export type SchoolHolidayType =
+  | 'herfstvakantie'
+  | 'kerstvakantie'
+  | 'voorjaarsvakantie'
+  | 'meivakantie'
+  | 'zomervakantie';
+
+export type SchoolHolidayRegion = 'noord' | 'midden' | 'zuid';
+
 export interface Day {
   date: Date;
   traditionalDayNumber: number;
@@ -17,6 +26,7 @@ export interface Day {
   isWeekend: boolean;
   astronomicalEvent?: AstronomicalEvent;
   moonPhase?: MoonPhase;
+  schoolHoliday?: SchoolHolidayType;
   isToday?: boolean;
 }
 

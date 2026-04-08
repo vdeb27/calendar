@@ -36,8 +36,8 @@ Screenshots verplaatst naar `docs/design-references/`.
 ## ~~12. Maanfasen integreren~~ DONE
 Maanfasen (nieuwe maan, eerste kwartier, volle maan, laatste kwartier) weergeven in de kalender als kleine iconen in de dagcellen. Berekend via Jean Meeus algoritme, getest op bekende data.
 
-## 13. Schoolvakanties weergeven
-Schoolvakanties (regio Midden) visueel markeren in de kalender. Denk aan gekleurde achtergronden of labels op de betreffende weken/dagen.
+## ~~13. Schoolvakanties weergeven~~ DONE
+Schoolvakanties (Noord/Midden/Zuid, default Midden) visueel gemarkeerd met diagonaal streepjespatroon. Data 2020-2030 van rijksoverheid open data. Regio-toggle (N/M/Z) in header. Eerste weekend overgeslagen voor schonere weergave.
 
 ## 14. Optie-venster voor een uitleg en de opties
 Een tandwiel rechtsboven met daarachter alle configuratie opties. Visueel gemaakt: iets als 📅/🏔️ toggle voor de keuze tussen traditionele en Olympische kalenders, ☀️ on/off voor de astronomische gebeurtenissen, 🌙 on/off voor de maanfases, 🏫 on/off voor schoolvakanties, 🇳🇱/🇬🇧 voor de taal, en een three-way toggle voor de keuze Noord/Midden/Zuid ⬆️/↔️/⬇️.

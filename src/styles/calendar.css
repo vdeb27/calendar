@@ -660,3 +660,71 @@ body {
     grid-column: 1 / -1;
   }
 }
+
+/* School holiday hash pattern */
+.day-cell.school-holiday::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 5px,
+    rgba(100, 100, 100, 0.08) 5px,
+    rgba(100, 100, 100, 0.08) 6px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Region toggle (N/M/Z) */
+.region-toggle {
+  display: flex;
+  position: relative;
+  background: #ecf0f1;
+  border-radius: 16px;
+  padding: 2px;
+}
+
+.region-toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(33.33% - 2px);
+  height: calc(100% - 4px);
+  background: #2c3e50;
+  border-radius: 14px;
+  transition: transform 0.25s ease;
+  pointer-events: none;
+}
+
+.region-toggle-slider.midden {
+  transform: translateX(100%);
+}
+
+.region-toggle-slider.zuid {
+  transform: translateX(200%);
+}
+
+.region-toggle-button {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2c3e50;
+  transition: color 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.region-toggle-button:hover {
+  background: transparent;
+}
+
+.region-toggle-button.active {
+  color: white;
+  background: transparent;
+}

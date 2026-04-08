@@ -1,4 +1,5 @@
 import { Day, ViewMode, MoonPhase } from '../types/calendar';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface DayCellProps {
   day: Day;
@@ -42,6 +43,7 @@ function getMoonPhaseIcon(phase: MoonPhase | undefined): string | null {
 export default function DayCell({ day, viewMode }: DayCellProps) {
   const astroIcon = getAstronomicalIcon(day.astronomicalEvent);
   const moonIcon = getMoonPhaseIcon(day.moonPhase);
+  const { t } = useLanguage();
 
   // Determine which number to show prominently
   const prominentNumber = viewMode === 'traditional' ? day.traditionalDayNumber : day.olympianDayNumber;
@@ -51,10 +53,13 @@ export default function DayCell({ day, viewMode }: DayCellProps) {
     'day-cell',
     day.isWeekend ? 'weekend' : '',
     day.isToday ? 'today' : '',
+    day.schoolHoliday ? 'school-holiday' : '',
   ].filter(Boolean).join(' ');
 
+  const holidayTitle = day.schoolHoliday ? t.schoolHolidays[day.schoolHoliday] : undefined;
+
   return (
-    <div className={cellClasses}>
+    <div className={cellClasses} title={holidayTitle}>
       <div className="day-number">{prominentNumber}</div>
       <div className="day-number-alt">{alternateNumber}</div>
       {(astroIcon || moonIcon) && (

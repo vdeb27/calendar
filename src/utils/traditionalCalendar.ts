@@ -1,7 +1,8 @@
-import { Week, Day, CustomYear, SeasonName } from '../types/calendar';
+import { Week, Day, CustomYear, SeasonName, SchoolHolidayRegion } from '../types/calendar';
 import { buildCustomYear } from './customCalendar';
 import { getMondayOfWeek, addDays, addWeeks, getTraditionalWeekNumber } from './dateUtils';
 import { getSolsticesAndEquinoxes, getMoonPhases } from './astronomicalEvents';
+import { getSchoolHolidays } from './schoolHolidays';
 import { DAYS_PER_WEEK } from '../constants/calendar';
 
 export interface CustomWeekInfo {
@@ -63,13 +64,13 @@ function buildCustomMapping(customYears: CustomYear[]): Map<string, CustomWeekIn
   return mapping;
 }
 
-export function buildTraditionalYear(year: number): TraditionalYear {
+export function buildTraditionalYear(year: number, region: SchoolHolidayRegion = 'midden'): TraditionalYear {
   // Get custom years that overlap this traditional year
   // Traditional year 2026 (Jan-Dec) overlaps:
   // - Custom year 2025 (Mar 2025 - Mar 2026)
   // - Custom year 2026 (Mar 2026 - Mar 2027)
-  const customYearPrev = buildCustomYear(year - 1);
-  const customYearCurr = buildCustomYear(year);
+  const customYearPrev = buildCustomYear(year - 1, region);
+  const customYearCurr = buildCustomYear(year, region);
 
   const customYearMapping = buildCustomMapping([customYearPrev, customYearCurr]);
 
@@ -81,6 +82,10 @@ export function buildTraditionalYear(year: number): TraditionalYear {
   const moonPhases = getMoonPhases(year);
   const nextYearMoonPhases = getMoonPhases(year + 1);
   nextYearMoonPhases.forEach((value, key) => moonPhases.set(key, value));
+
+  const schoolHolidays = getSchoolHolidays(year, region);
+  const nextYearSchoolHolidays = getSchoolHolidays(year + 1, region);
+  nextYearSchoolHolidays.forEach((value, key) => schoolHolidays.set(key, value));
 
   // Build weeks starting from first Monday of ISO week 1
   // ISO week 1 is the week containing the first Thursday of the year
@@ -113,6 +118,8 @@ export function buildTraditionalYear(year: number): TraditionalYear {
       const customInfo = customYearMapping.get(dateStr);
       const olympianDayNumber = customInfo?.olympianDayNumber || 0;
 
+      const schoolHoliday = schoolHolidays.get(dateStr);
+
       days.push({
         date,
         traditionalDayNumber: date.getDate(),
@@ -120,6 +127,7 @@ export function buildTraditionalYear(year: number): TraditionalYear {
         isWeekend,
         astronomicalEvent: event,
         moonPhase,
+        schoolHoliday,
         isToday,
       });
     }
