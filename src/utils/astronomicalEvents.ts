@@ -1,4 +1,4 @@
-import { AstronomicalEvent } from '../types/calendar';
+import { AstronomicalEvent, MoonPhase } from '../types/calendar';
 
 // Astronomical event calculation using Jean Meeus's "Astronomical Algorithms"
 // Accurate to within ~1 minute for years 1000-3000
@@ -127,6 +127,173 @@ export function getWinterSolstice(year: number): Date {
   const jde0 = calculateMeanJDE(year, 3);
   const jde = applyPeriodicCorrections(jde0);
   return jdeToDate(jde);
+}
+
+// ── Moon Phase Calculations (Jean Meeus, Astronomical Algorithms, Ch. 49) ──
+
+/**
+ * Calculate the JDE of a moon phase.
+ * @param k - The lunation number (integer = new moon, +0.25 = first quarter, +0.5 = full moon, +0.75 = last quarter)
+ */
+function calculateMoonPhaseJDE(k: number): number {
+  const T = k / 1236.85;
+  const T2 = T * T;
+  const T3 = T2 * T;
+  const T4 = T3 * T;
+
+  // Mean phase JDE
+  let JDE = 2451550.09766 + 29.530588861 * k + 0.00015437 * T2 - 0.000000150 * T3 + 0.00000000073 * T4;
+
+  // Sun's mean anomaly
+  const M = (2.5534 + 29.10535670 * k - 0.0000014 * T2 - 0.00000011 * T3) * Math.PI / 180;
+  // Moon's mean anomaly
+  const Mp = (201.5643 + 385.81693528 * k + 0.0107582 * T2 + 0.00001238 * T3 - 0.000000058 * T4) * Math.PI / 180;
+  // Moon's argument of latitude
+  const F = (160.7108 + 390.67050284 * k - 0.0016118 * T2 - 0.00000227 * T3 + 0.000000011 * T4) * Math.PI / 180;
+  // Longitude of ascending node
+  const Omega = (124.7746 - 1.56375588 * k + 0.0020672 * T2 + 0.00000215 * T3) * Math.PI / 180;
+
+  // Eccentricity correction
+  const E = 1 - 0.002516 * T - 0.0000074 * T2;
+  const E2 = E * E;
+
+  // Determine phase type from fractional part of k
+  const phase = Math.round((k % 1 + 1) % 1 * 4) % 4; // 0=new, 1=first quarter, 2=full, 3=last quarter
+
+  let correction = 0;
+
+  if (phase === 0) {
+    // New Moon corrections
+    correction =
+      -0.40720 * Math.sin(Mp) +
+       0.17241 * E * Math.sin(M) +
+       0.01608 * Math.sin(2 * Mp) +
+       0.01039 * Math.sin(2 * F) +
+       0.00739 * E * Math.sin(Mp - M) +
+      -0.00514 * E * Math.sin(Mp + M) +
+       0.00208 * E2 * Math.sin(2 * M) +
+      -0.00111 * Math.sin(Mp - 2 * F) +
+      -0.00057 * Math.sin(Mp + 2 * F) +
+       0.00056 * E * Math.sin(2 * Mp + M) +
+      -0.00042 * Math.sin(3 * Mp) +
+       0.00042 * E * Math.sin(M + 2 * F) +
+       0.00038 * E * Math.sin(M - 2 * F) +
+      -0.00024 * E * Math.sin(2 * Mp - M) +
+      -0.00017 * Math.sin(Omega) +
+      -0.00007 * Math.sin(Mp + 2 * M) +
+       0.00004 * Math.sin(2 * Mp - 2 * F) +
+       0.00004 * Math.sin(3 * M) +
+       0.00003 * Math.sin(Mp + M - 2 * F) +
+       0.00003 * Math.sin(2 * Mp + 2 * F) +
+      -0.00003 * Math.sin(Mp + M + 2 * F) +
+       0.00003 * Math.sin(Mp - M + 2 * F) +
+      -0.00002 * Math.sin(Mp - M - 2 * F) +
+      -0.00002 * Math.sin(3 * Mp + M) +
+       0.00002 * Math.sin(4 * Mp);
+  } else if (phase === 2) {
+    // Full Moon corrections
+    correction =
+      -0.40614 * Math.sin(Mp) +
+       0.17302 * E * Math.sin(M) +
+       0.01614 * Math.sin(2 * Mp) +
+       0.01043 * Math.sin(2 * F) +
+       0.00734 * E * Math.sin(Mp - M) +
+      -0.00515 * E * Math.sin(Mp + M) +
+       0.00209 * E2 * Math.sin(2 * M) +
+      -0.00111 * Math.sin(Mp - 2 * F) +
+      -0.00057 * Math.sin(Mp + 2 * F) +
+       0.00056 * E * Math.sin(2 * Mp + M) +
+      -0.00042 * Math.sin(3 * Mp) +
+       0.00042 * E * Math.sin(M + 2 * F) +
+       0.00038 * E * Math.sin(M - 2 * F) +
+      -0.00024 * E * Math.sin(2 * Mp - M) +
+      -0.00017 * Math.sin(Omega) +
+      -0.00007 * Math.sin(Mp + 2 * M) +
+       0.00004 * Math.sin(2 * Mp - 2 * F) +
+       0.00004 * Math.sin(3 * M) +
+       0.00003 * Math.sin(Mp + M - 2 * F) +
+       0.00003 * Math.sin(2 * Mp + 2 * F) +
+      -0.00003 * Math.sin(Mp + M + 2 * F) +
+       0.00003 * Math.sin(Mp - M + 2 * F) +
+      -0.00002 * Math.sin(Mp - M - 2 * F) +
+      -0.00002 * Math.sin(3 * Mp + M) +
+       0.00002 * Math.sin(4 * Mp);
+  } else {
+    // First Quarter and Last Quarter corrections
+    correction =
+      -0.62801 * Math.sin(Mp) +
+       0.17172 * E * Math.sin(M) +
+      -0.01183 * E * Math.sin(Mp + M) +
+       0.00862 * Math.sin(2 * Mp) +
+       0.00804 * Math.sin(2 * F) +
+       0.00454 * E * Math.sin(Mp - M) +
+       0.00204 * E2 * Math.sin(2 * M) +
+      -0.00180 * Math.sin(Mp - 2 * F) +
+      -0.00070 * Math.sin(Mp + 2 * F) +
+      -0.00040 * Math.sin(3 * Mp) +
+      -0.00034 * E * Math.sin(2 * Mp - M) +
+       0.00032 * E * Math.sin(M + 2 * F) +
+       0.00032 * E * Math.sin(M - 2 * F) +
+      -0.00028 * E2 * Math.sin(Mp + 2 * M) +
+       0.00027 * E * Math.sin(2 * Mp + M) +
+      -0.00017 * Math.sin(Omega) +
+      -0.00005 * Math.sin(Mp - M - 2 * F) +
+       0.00004 * Math.sin(2 * Mp + 2 * F) +
+      -0.00004 * Math.sin(Mp + M + 2 * F) +
+       0.00004 * Math.sin(Mp - 2 * M) +
+       0.00003 * Math.sin(Mp + M - 2 * F) +
+       0.00003 * Math.sin(3 * M) +
+       0.00002 * Math.sin(2 * Mp - 2 * F) +
+       0.00002 * Math.sin(Mp - M + 2 * F) +
+      -0.00002 * Math.sin(3 * Mp + M);
+
+    // Additional W correction for quarters
+    const W = 0.00306 - 0.00038 * E * Math.cos(M) + 0.00026 * Math.cos(Mp)
+            - 0.00002 * Math.cos(Mp - M) + 0.00002 * Math.cos(Mp + M) + 0.00002 * Math.cos(2 * F);
+
+    if (phase === 1) {
+      correction += W;
+    } else {
+      correction -= W;
+    }
+  }
+
+  JDE += correction;
+  return JDE;
+}
+
+/**
+ * Get all moon phases for a given Gregorian year.
+ * Returns a Map from date string to MoonPhase for the 4 principal phases.
+ */
+export function getMoonPhases(year: number): Map<string, MoonPhase> {
+  const phases = new Map<string, MoonPhase>();
+  const phaseTypes: MoonPhase[] = ['new-moon', 'first-quarter', 'full-moon', 'last-quarter'];
+  const phaseOffsets = [0, 0.25, 0.5, 0.75];
+
+  // Approximate k for January of the given year
+  const k0 = Math.floor((year - 2000) * 12.3685);
+
+  // Scan enough lunations to cover the year (14 lunations is more than enough)
+  for (let i = -1; i <= 14; i++) {
+    for (let p = 0; p < 4; p++) {
+      const k = k0 + i + phaseOffsets[p];
+      const jde = calculateMoonPhaseJDE(k);
+      const date = jdeToDate(jde);
+      const dateYear = date.getUTCFullYear();
+
+      // Only include phases that fall within the requested year
+      if (dateYear === year) {
+        const dateStr = date.toDateString();
+        // Don't overwrite if there's already a phase on this date (rare but possible)
+        if (!phases.has(dateStr)) {
+          phases.set(dateStr, phaseTypes[p]);
+        }
+      }
+    }
+  }
+
+  return phases;
 }
 
 /**

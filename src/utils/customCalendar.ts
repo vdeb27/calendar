@@ -1,6 +1,6 @@
-import { CustomYear, Season, Period, Week, Day, SeasonName, AstronomicalEvent } from '../types/calendar';
+import { CustomYear, Season, Period, Week, Day, SeasonName, AstronomicalEvent, MoonPhase } from '../types/calendar';
 import { getCustomYearStart, addDays, addWeeks, customYearNeedsLeapWeek, getLeapSeason, LeapSeason } from './dateUtils';
-import { getSolsticesAndEquinoxes } from './astronomicalEvents';
+import { getSolsticesAndEquinoxes, getMoonPhases } from './astronomicalEvents';
 import { WEEKS_PER_YEAR, WEEKS_PER_YEAR_LEAP, WEEKS_PER_SEASON, PERIODS_PER_SEASON, WEEKS_PER_PERIOD, DAYS_PER_WEEK } from '../constants/calendar';
 
 // Map SeasonName to LeapSeason for comparison
@@ -32,14 +32,16 @@ const INTERCALARY_NAMES = {
   Winter: 'Winterjoy',
 };
 
-function createDay(date: Date, astronomicalEvents: Map<string, AstronomicalEvent>, olympianDayNumber: number): Day {
+function createDay(date: Date, astronomicalEvents: Map<string, AstronomicalEvent>, moonPhases: Map<string, MoonPhase>, olympianDayNumber: number): Day {
   const dayOfWeek = date.getDay();
   const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-  const event = astronomicalEvents.get(date.toDateString());
+  const dateStr = date.toDateString();
+  const event = astronomicalEvents.get(dateStr);
+  const moonPhase = moonPhases.get(dateStr);
 
   // Check if this is today
   const today = new Date();
-  const isToday = date.toDateString() === today.toDateString();
+  const isToday = dateStr === today.toDateString();
 
   return {
     date,
@@ -47,6 +49,7 @@ function createDay(date: Date, astronomicalEvents: Map<string, AstronomicalEvent
     olympianDayNumber,
     isWeekend,
     astronomicalEvent: event,
+    moonPhase,
     isToday,
   };
 }
@@ -56,6 +59,7 @@ function createWeek(
   customWeekNumber: number,
   isIntercalary: boolean,
   astronomicalEvents: Map<string, AstronomicalEvent>,
+  moonPhases: Map<string, MoonPhase>,
   olympianDayStart: number,
   intercalaryName?: string
 ): Week {
@@ -63,7 +67,7 @@ function createWeek(
 
   for (let i = 0; i < DAYS_PER_WEEK; i++) {
     const date = addDays(startDate, i);
-    days.push(createDay(date, astronomicalEvents, olympianDayStart + i));
+    days.push(createDay(date, astronomicalEvents, moonPhases, olympianDayStart + i));
   }
 
   return {
@@ -78,7 +82,8 @@ function createPeriod(
   name: string,
   startDate: Date,
   startWeekNumber: number,
-  astronomicalEvents: Map<string, AstronomicalEvent>
+  astronomicalEvents: Map<string, AstronomicalEvent>,
+  moonPhases: Map<string, MoonPhase>
 ): Period {
   const weeks: Week[] = [];
 
@@ -86,7 +91,7 @@ function createPeriod(
     const weekStart = addWeeks(startDate, i);
     // Olympian day numbering: 1-28 for each period (4 weeks × 7 days)
     const olympianDayStart = i * DAYS_PER_WEEK + 1;
-    weeks.push(createWeek(weekStart, startWeekNumber + i, false, astronomicalEvents, olympianDayStart));
+    weeks.push(createWeek(weekStart, startWeekNumber + i, false, astronomicalEvents, moonPhases, olympianDayStart));
   }
 
   return {
@@ -100,6 +105,7 @@ function createSeason(
   startDate: Date,
   startWeekNumber: number,
   astronomicalEvents: Map<string, AstronomicalEvent>,
+  moonPhases: Map<string, MoonPhase>,
   isLeapWeekSeason: boolean = false
 ): Season {
   const periodNames = PERIOD_NAMES[seasonName];
@@ -109,7 +115,7 @@ function createSeason(
   let currentWeekNumber = startWeekNumber;
 
   for (let i = 0; i < PERIODS_PER_SEASON; i++) {
-    periods.push(createPeriod(periodNames[i], currentDate, currentWeekNumber, astronomicalEvents));
+    periods.push(createPeriod(periodNames[i], currentDate, currentWeekNumber, astronomicalEvents, moonPhases));
     currentDate = addWeeks(currentDate, WEEKS_PER_PERIOD);
     currentWeekNumber += WEEKS_PER_PERIOD;
   }
@@ -118,12 +124,12 @@ function createSeason(
   const intercalaryName = INTERCALARY_NAMES[seasonName];
 
   // Intercalary weeks use day numbering 1-7 (and 8-14 for leap week)
-  intercalaryWeeks.push(createWeek(currentDate, currentWeekNumber, true, astronomicalEvents, 1, intercalaryName));
+  intercalaryWeeks.push(createWeek(currentDate, currentWeekNumber, true, astronomicalEvents, moonPhases, 1, intercalaryName));
 
   if (isLeapWeekSeason) {
     currentDate = addWeeks(currentDate, 1);
     currentWeekNumber += 1;
-    intercalaryWeeks.push(createWeek(currentDate, currentWeekNumber, true, astronomicalEvents, 8, intercalaryName));
+    intercalaryWeeks.push(createWeek(currentDate, currentWeekNumber, true, astronomicalEvents, moonPhases, 8, intercalaryName));
   }
 
   return {
@@ -145,6 +151,10 @@ export function buildCustomYear(year: number): CustomYear {
   const nextYearEvents = getSolsticesAndEquinoxes(year + 1);
   nextYearEvents.forEach((value, key) => astronomicalEvents.set(key, value));
 
+  const moonPhases = getMoonPhases(year);
+  const nextYearMoonPhases = getMoonPhases(year + 1);
+  nextYearMoonPhases.forEach((value, key) => moonPhases.set(key, value));
+
   const seasonNames: SeasonName[] = ['Spring', 'Summer', 'Autumn', 'Winter'];
   const seasons: Season[] = [];
 
@@ -156,7 +166,7 @@ export function buildCustomYear(year: number): CustomYear {
     const isLeapWeekSeason = needsLeapWeek && leapSeason === SEASON_NAME_TO_LEAP_SEASON[seasonName];
     const weeksInSeason = isLeapWeekSeason ? WEEKS_PER_SEASON + 1 : WEEKS_PER_SEASON;
 
-    seasons.push(createSeason(seasonName, currentDate, currentWeekNumber, astronomicalEvents, isLeapWeekSeason));
+    seasons.push(createSeason(seasonName, currentDate, currentWeekNumber, astronomicalEvents, moonPhases, isLeapWeekSeason));
     currentDate = addWeeks(currentDate, weeksInSeason);
     currentWeekNumber += weeksInSeason;
   }

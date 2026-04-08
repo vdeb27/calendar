@@ -5,6 +5,7 @@ import {
   getAutumnEquinox,
   getWinterSolstice,
   getSolsticesAndEquinoxes,
+  getMoonPhases,
 } from './astronomicalEvents';
 
 function toUTCDate(d: Date): string {
@@ -68,5 +69,53 @@ describe('getSolsticesAndEquinoxes', () => {
     expect(values).toContain('summer-solstice');
     expect(values).toContain('autumn-equinox');
     expect(values).toContain('winter-solstice');
+  });
+});
+
+describe('getMoonPhases', () => {
+  it('returns approximately 49-53 phases per year', () => {
+    const phases = getMoonPhases(2024);
+    expect(phases.size).toBeGreaterThanOrEqual(49);
+    expect(phases.size).toBeLessThanOrEqual(53);
+  });
+
+  it('contains all four phase types', () => {
+    const phases = getMoonPhases(2024);
+    const values = [...phases.values()];
+    expect(values).toContain('new-moon');
+    expect(values).toContain('first-quarter');
+    expect(values).toContain('full-moon');
+    expect(values).toContain('last-quarter');
+  });
+
+  it('correctly identifies known full moon dates in 2024', () => {
+    const phases = getMoonPhases(2024);
+    // Verify full moons exist and are on expected dates (within ±1 day tolerance for timezone)
+    const fullMoons = [...phases.entries()].filter(([, v]) => v === 'full-moon');
+    expect(fullMoons.length).toBeGreaterThanOrEqual(12);
+    expect(fullMoons.length).toBeLessThanOrEqual(13);
+
+    // Check specific known full moon: March 25, 2024
+    const march25 = new Date(Date.UTC(2024, 2, 25));
+    expect(phases.get(march25.toDateString())).toBe('full-moon');
+  });
+
+  it('correctly identifies known new moon dates in 2024', () => {
+    const phases = getMoonPhases(2024);
+    const newMoons = [...phases.entries()].filter(([, v]) => v === 'new-moon');
+    expect(newMoons.length).toBeGreaterThanOrEqual(12);
+    expect(newMoons.length).toBeLessThanOrEqual(13);
+
+    // Check specific known new moon: April 8, 2024 (solar eclipse)
+    const april8 = new Date(Date.UTC(2024, 3, 8));
+    expect(phases.get(april8.toDateString())).toBe('new-moon');
+  });
+
+  it('works for different years', () => {
+    for (const year of [2020, 2025, 2030, 2050]) {
+      const phases = getMoonPhases(year);
+      expect(phases.size).toBeGreaterThanOrEqual(49);
+      expect(phases.size).toBeLessThanOrEqual(53);
+    }
   });
 });

@@ -364,6 +364,10 @@ body {
   right: 4px;
 }
 
+.moon-phase-icon {
+  font-size: 0.7em;
+}
+
 @media (max-width: 1200px) {
   .calendar-header-row,
   .calendar-row {
