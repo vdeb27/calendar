@@ -1,4 +1,4 @@
-import { Day, ViewMode } from '../types/calendar';
+import { Day, ViewMode, MoonPhase } from '../types/calendar';
 
 interface DayCellProps {
   day: Day;
@@ -22,8 +22,26 @@ function getAstronomicalIcon(event: string | undefined): string | null {
   }
 }
 
+function getMoonPhaseIcon(phase: MoonPhase | undefined): string | null {
+  if (!phase) return null;
+
+  switch (phase) {
+    case 'new-moon':
+      return '🌑';
+    case 'first-quarter':
+      return '🌓';
+    case 'full-moon':
+      return '🌕';
+    case 'last-quarter':
+      return '🌗';
+    default:
+      return null;
+  }
+}
+
 export default function DayCell({ day, viewMode }: DayCellProps) {
-  const icon = getAstronomicalIcon(day.astronomicalEvent);
+  const astroIcon = getAstronomicalIcon(day.astronomicalEvent);
+  const moonIcon = getMoonPhaseIcon(day.moonPhase);
 
   // Determine which number to show prominently
   const prominentNumber = viewMode === 'traditional' ? day.traditionalDayNumber : day.olympianDayNumber;
@@ -39,7 +57,11 @@ export default function DayCell({ day, viewMode }: DayCellProps) {
     <div className={cellClasses}>
       <div className="day-number">{prominentNumber}</div>
       <div className="day-number-alt">{alternateNumber}</div>
-      {icon && <div className="astronomical-icon">{icon}</div>}
+      {(astroIcon || moonIcon) && (
+        <div className="astronomical-icon">
+          {astroIcon}{moonIcon && <span className="moon-phase-icon">{moonIcon}</span>}
+        </div>
+      )}
     </div>
   );
 }

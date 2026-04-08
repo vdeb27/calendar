@@ -1,7 +1,7 @@
 import { Week, Day, CustomYear, SeasonName } from '../types/calendar';
 import { buildCustomYear } from './customCalendar';
 import { getMondayOfWeek, addDays, addWeeks, getTraditionalWeekNumber } from './dateUtils';
-import { getSolsticesAndEquinoxes } from './astronomicalEvents';
+import { getSolsticesAndEquinoxes, getMoonPhases } from './astronomicalEvents';
 import { DAYS_PER_WEEK } from '../constants/calendar';
 
 export interface CustomWeekInfo {
@@ -78,6 +78,10 @@ export function buildTraditionalYear(year: number): TraditionalYear {
   const nextYearEvents = getSolsticesAndEquinoxes(year + 1);
   nextYearEvents.forEach((value, key) => astronomicalEvents.set(key, value));
 
+  const moonPhases = getMoonPhases(year);
+  const nextYearMoonPhases = getMoonPhases(year + 1);
+  nextYearMoonPhases.forEach((value, key) => moonPhases.set(key, value));
+
   // Build weeks starting from first Monday of ISO week 1
   // ISO week 1 is the week containing the first Thursday of the year
   const jan4 = new Date(year, 0, 4);
@@ -100,11 +104,13 @@ export function buildTraditionalYear(year: number): TraditionalYear {
       const date = addDays(currentDate, d);
       const dayOfWeek = date.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      const event = astronomicalEvents.get(date.toDateString());
-      const isToday = date.toDateString() === today.toDateString();
+      const dateStr = date.toDateString();
+      const event = astronomicalEvents.get(dateStr);
+      const moonPhase = moonPhases.get(dateStr);
+      const isToday = dateStr === today.toDateString();
 
       // Get olympianDayNumber from custom mapping
-      const customInfo = customYearMapping.get(date.toDateString());
+      const customInfo = customYearMapping.get(dateStr);
       const olympianDayNumber = customInfo?.olympianDayNumber || 0;
 
       days.push({
@@ -113,6 +119,7 @@ export function buildTraditionalYear(year: number): TraditionalYear {
         olympianDayNumber,
         isWeekend,
         astronomicalEvent: event,
+        moonPhase,
         isToday,
       });
     }

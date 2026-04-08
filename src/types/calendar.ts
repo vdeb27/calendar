@@ -8,12 +8,15 @@ export type AstronomicalEvent =
   | 'autumn-equinox'
   | 'winter-solstice';
 
+export type MoonPhase = 'new-moon' | 'first-quarter' | 'full-moon' | 'last-quarter';
+
 export interface Day {
   date: Date;
   traditionalDayNumber: number;
   olympianDayNumber: number;
   isWeekend: boolean;
   astronomicalEvent?: AstronomicalEvent;
+  moonPhase?: MoonPhase;
   isToday?: boolean;
 }
 
