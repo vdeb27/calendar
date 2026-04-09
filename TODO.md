@@ -41,3 +41,9 @@ Schoolvakanties (Noord/Midden/Zuid, default Midden) visueel gemarkeerd met diago
 
 ## ~~14. Optie-venster voor een uitleg en de opties~~ DONE
 Een tandwiel rechtsboven met daarachter alle configuratie opties. Visueel gemaakt: iets als 📅/🏔️ toggle voor de keuze tussen traditionele en Olympische kalenders, ☀️ on/off voor de astronomische gebeurtenissen, 🌙 on/off voor de maanfases, 🏫 on/off voor schoolvakanties, 🇳🇱/🇬🇧 voor de taal, en een three-way toggle voor de keuze Noord/Midden/Zuid ⬆️/↔️/⬇️.
+
+## 15. HTTPS voor PWA offline-modus
+Service workers werken alleen over HTTPS (of localhost). De app is momenteel niet offline bruikbaar op telefoons via het lokale netwerk omdat die via HTTP wordt geserveerd. Oplossing: HTTPS configureren (bijv. mkcert) of de app hosten op een dienst met HTTPS (GitHub Pages, Netlify, Vercel).
+
+## 16. App-icoon en favicon
+Een eigen icoon ontwerpen voor de app (PWA manifest icons) en als favicon. Huidige setup gebruikt een generieke icon.svg.
