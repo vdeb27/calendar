@@ -42,8 +42,11 @@ Schoolvakanties (Noord/Midden/Zuid, default Midden) visueel gemarkeerd met diago
 ## ~~14. Optie-venster voor een uitleg en de opties~~ DONE
 Een tandwiel rechtsboven met daarachter alle configuratie opties. Visueel gemaakt: iets als 📅/🏔️ toggle voor de keuze tussen traditionele en Olympische kalenders, ☀️ on/off voor de astronomische gebeurtenissen, 🌙 on/off voor de maanfases, 🏫 on/off voor schoolvakanties, 🇳🇱/🇬🇧 voor de taal, en een three-way toggle voor de keuze Noord/Midden/Zuid ⬆️/↔️/⬇️.
 
-## 15. HTTPS voor PWA offline-modus
-Service workers werken alleen over HTTPS (of localhost). De app is momenteel niet offline bruikbaar op telefoons via het lokale netwerk omdat die via HTTP wordt geserveerd. Oplossing: HTTPS configureren (bijv. mkcert) of de app hosten op een dienst met HTTPS (GitHub Pages, Netlify, Vercel).
+## ~~15. HTTPS voor PWA offline-modus~~ DONE
+Gedeployed naar GitHub Pages (https://vdeb27.github.io/calendar/) via GitHub Actions workflow. Vite base path dynamisch via env var, relatieve icon-paden, start_url relatief gemaakt voor subpath-compatibiliteit.
 
-## 16. App-icoon en favicon
-Een eigen icoon ontwerpen voor de app (PWA manifest icons) en als favicon. Huidige setup gebruikt een generieke icon.svg.
+## ~~16. App-icoon en favicon~~ DONE
+Eigen berg-met-sneeuwkap icoon (Olympus 🏔️) als SVG favicon en PWA-icoon. PNG-varianten (192x192, 512x512) voor brede compatibiliteit. Manifest met gescheiden `any`/`maskable` purpose.
+
+## 17. GitHub Actions naar Node.js 24
+De deploy workflow (`deploy.yml`) gebruikt actions die op Node.js 20 draaien. GitHub forceert Node.js 24 vanaf 2 juni 2026 en verwijdert Node.js 20 op 16 september 2026. Actions updaten naar versies die Node.js 24 ondersteunen (checkout, setup-node, configure-pages, upload-pages-artifact, deploy-pages).
